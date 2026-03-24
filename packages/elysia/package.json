@@ -1,0 +1,28 @@
+{
+  "name": "@bertui/elysia",
+  "version": "2.0.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "bun build ./src/index.ts --outdir ./dist --target bun --format esm",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@bertui/core": "workspace:*",
+    "@bertui/compiler": "workspace:*"
+  },
+  "peerDependencies": {
+    "elysia": ">=1.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.0",
+    "elysia": "^1.0.0"
+  }
+}

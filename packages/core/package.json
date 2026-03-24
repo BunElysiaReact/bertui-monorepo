@@ -1,0 +1,34 @@
+{
+  "name": "@bertui/core",
+  "version": "2.0.0",
+  "description": "Core types, config, and utilities for BertUI",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./types": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/types/index.js"
+    },
+    "./config": {
+      "types": "./dist/config/index.d.ts",
+      "import": "./dist/config/index.js"
+    },
+    "./utils": {
+      "types": "./dist/utils/index.d.ts",
+      "import": "./dist/utils/index.js"
+    }
+  },
+  "scripts": {
+    "build": "bun build ./src/index.ts --outdir ./dist --target bun --format esm",
+    "typecheck": "tsc --noEmit",
+    "dev": "bun --watch ./src/index.ts"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.0"
+  }
+}

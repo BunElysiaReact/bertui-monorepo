@@ -1,0 +1,10 @@
+{
+  "name": "create-bertui",
+  "version": "2.0.0",
+  "type": "module",
+  "bin": { "create-bertui": "./bin/create-bertui.js" },
+  "dependencies": {
+    "@bertui/core": "workspace:*",
+    "@bertui/cli": "workspace:*"
+  }
+}

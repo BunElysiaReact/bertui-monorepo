@@ -1,0 +1,24 @@
+{
+  "name": "bertui-monorepo",
+  "private": true,
+  "version": "2.0.0",
+  "description": "BertUI monorepo — modular React framework powered by Bun",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "bun run --filter '*' dev",
+    "build": "bun run --filter '*' build",
+    "typecheck": "bun run --filter '*' typecheck",
+    "test": "bun test",
+    "clean": "rm -rf packages/*/dist packages/*/node_modules apps/*/dist apps/*/node_modules node_modules"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  }
+}
