@@ -1,7 +1,7 @@
-// packages/cli/src/index.ts
-// @bertui/cli — the bertui command
-
+import { loadConfig, validateOptionalFeatures } from '@bertui/core'
 import { join } from 'path'
+
+// ─── Program Entry Point ─────────────────────────────────────────────────────
 
 export async function program(): Promise<void> {
   const args    = process.argv.slice(2)
@@ -62,9 +62,11 @@ async function runDev(options: { port: number; root: string }): Promise<void> {
   const { root, port } = options
   const { compileProject } = await import('@bertui/compiler')
   const { buildDevImportMap, setupFileWatcher } = await import('@bertui/dev')
-  const { loadConfig } = await import('@bertui/core')
-
+  
+  // Load config and validate optional features
   const config      = await loadConfig(root)
+  await validateOptionalFeatures(config)  // Add this line
+  
   const compiledDir = join(root, '.bertui', 'compiled')
   const clients     = new Set<{ send: (d: string) => void }>()
 
@@ -182,6 +184,11 @@ async function runDev(options: { port: number; root: string }): Promise<void> {
 
 async function runBuild(options: { root: string }): Promise<void> {
   printHeader('BUILD')
+  
+  // Load config and validate optional features
+  const config = await loadConfig(options.root)
+  await validateOptionalFeatures(config)  // Add this line
+  
   const { buildProduction } = await import('./build.js')
   await buildProduction(options)
 }

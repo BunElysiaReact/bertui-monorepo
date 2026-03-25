@@ -1,9 +1,10 @@
 {
   "name": "@bertui/cli",
-  "version": "2.0.0",
+  "version": "1.0.1",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "files": ["dist", "README.md"],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -14,17 +15,14 @@
     "build": "bun build ./src/index.ts --outdir ./dist --target bun --format esm --external lightningcss --external @bertui/css",
     "typecheck": "tsc --noEmit"
   },
- 
   "dependencies": {
     "lightningcss": "latest",
-    "@bertui/core": "workspace:*",
-    "@bertui/compiler": "workspace:*",
-    "@bertui/dev": "workspace:*",
-    "@bertui/css": "workspace:*",
-    "@bertui/images": "workspace:*",
-    "@bertui/ssg": "workspace:*"
-    
-
+    "@bertui/core": "^1.0.0",
+    "@bertui/compiler": "^1.0.0",
+    "@bertui/dev": "^1.0.0",
+    "@bertui/css": "^1.0.0",
+    "@bertui/images": "^1.0.0",
+    "@bertui/ssg": "^1.0.0"
   },
   "devDependencies": {
     "typescript": "^6.0.0"

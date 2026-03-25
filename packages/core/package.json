@@ -1,10 +1,11 @@
 {
   "name": "@bertui/core",
-  "version": "2.0.0",
+  "version": "1.0.0",
   "description": "Core types, config, and utilities for BertUI",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "files": ["dist", "README.md"],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",

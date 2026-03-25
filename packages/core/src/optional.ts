@@ -1,22 +1,17 @@
-import type { BertuiConfig } from '@bertui/core'
+// packages/core/src/optional.ts
+import type { BertuiConfig } from './types/index.js'
 
-export const OPTIONAL_FEATURES = [
+export interface OptionalFeature {
+  name: string
+  pkg: string
+  configKey: string
+}
+
+export const OPTIONAL_FEATURES: OptionalFeature[] = [
   { name: 'SSG / Static Site Generation', pkg: '@bertui/ssg', configKey: 'ssg' },
   { name: 'Elysia Fullstack', pkg: '@bertui/elysia', configKey: 'elysia' },
-  { name: 'Animations', pkg: '@bertui/animations', configKey: 'animations' }, // Add this
+  { name: 'Animations', pkg: '@bertui/animations', configKey: 'animations' },
 ]
-
-export async function loadOptional<T = unknown>(pkg: string, configKey: string): Promise<T> {
-  try {
-    return await import(pkg) as T
-  } catch {
-    throw new Error(
-      `\n\n  [@bertui] config.${configKey} is enabled but ${pkg} is not installed.\n` +
-      `  Run:  bun add ${pkg}\n` +
-      `  Then restart the dev server.\n`
-    )
-  }
-}
 
 export async function validateOptionalFeatures(config: BertuiConfig): Promise<void> {
   const missing: Array<{ name: string; pkg: string; configKey: string }> = []

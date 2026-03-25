@@ -1,45 +1,48 @@
 {
   "name": "bertui",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Zero-config React framework powered by Bun — minimal core, optional everything else",
   "type": "module",
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "bin": {
     "bertui": "./bin/bertui.js"
   },
   "exports": {
     ".": {
-      "import": "./src/index.ts"
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
     },
     "./router": {
-      "import": "./src/router.ts"
+      "import": "./dist/router.js",
+      "types": "./dist/router.d.ts"
     },
     "./config": {
-      "import": "./src/config.ts"
+      "import": "./dist/config.js",
+      "types": "./dist/config.d.ts"
     }
   },
   "scripts": {
-    "build": "bun build ./src/index.ts --outdir ./dist --target bun --format esm",
+    "build": "bun build ./src/index.ts --outdir ./dist --target bun --format esm && tsc --emitDeclarationOnly",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@bertui/core":     "workspace:*",
-    "@bertui/compiler": "workspace:*",
-    "@bertui/router":   "workspace:*",
-    "@bertui/ssg":      "workspace:*",
-    "@bertui/css":      "workspace:*",
-    "@bertui/cli":      "workspace:*",
-    "@bertui/dev":      "workspace:*",
-    "@bertui/images":   "workspace:*"
+    "@bertui/core": "^1.0.0",
+    "@bertui/compiler": "^1.0.0",
+    "@bertui/router": "^1.0.0",
+    "@bertui/ssg": "^1.0.0",
+    "@bertui/css": "^1.0.0",
+    "@bertui/cli": "^1.0.0",
+    "@bertui/dev": "^1.0.0",
+    "@bertui/images": "^1.0.0"
   },
   "peerDependencies": {
-    "react":     ">=19.0.0",
+    "react": ">=19.0.0",
     "react-dom": ">=19.0.0"
   },
   "devDependencies": {
-    "typescript":       "^6.0.0",
-    "@types/react":     "^19.0.0",
+    "typescript": "^6.0.0",
+    "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0"
   },
   "keywords": ["react", "bun", "ssr", "ssg", "file-based-routing", "islands", "zero-config"],

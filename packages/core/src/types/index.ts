@@ -15,6 +15,7 @@ export interface BertuiConfig {
   forms?:      boolean
   animations?: boolean
   icons?:      boolean
+  ssg?: boolean
 }
 
 export interface MetaConfig {
