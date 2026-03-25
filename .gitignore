@@ -1,2 +1,13 @@
-node-modules
-dist
+# Dependencies
+**/node_modules/
+
+# Build outputs
+**/dist/
+**/.bertui/
+**/.bertuibuild/
+
+# Misc
+*.log
+.env*
+.DS_Store
+bun.lock
