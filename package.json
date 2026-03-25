@@ -8,11 +8,19 @@
     "apps/*"
   ],
   "scripts": {
-    "dev": "bun run --filter '*' dev",
+    "dev": "bun run watch",
     "build": "bun run --filter '*' build",
-    "typecheck": "bun run --filter '*' typecheck",
-    "test": "bun test",
-    "clean": "rm -rf packages/*/dist packages/*/node_modules apps/*/dist apps/*/node_modules node_modules"
+    "watch": "bun run --parallel watch:core watch:compiler watch:dev watch:css watch:images watch:router watch:ssg watch:cli watch:bertui watch:elysia",
+    "watch:core": "cd packages/core && bun run build --watch",
+    "watch:compiler": "cd packages/compiler && bun run build --watch",
+    "watch:dev": "cd packages/dev && bun run build --watch",
+    "watch:css": "cd packages/css && bun run build --watch",
+    "watch:images": "cd packages/images && bun run build --watch",
+    "watch:router": "cd packages/router && bun run build --watch",
+    "watch:ssg": "cd packages/ssg && bun run build --watch",
+    "watch:cli": "cd packages/cli && bun run build --watch",
+    "watch:bertui": "cd packages/bertui && bun run build --watch",
+    "watch:elysia": "cd packages/elysia && bun run build --watch"
   },
   "devDependencies": {
     "typescript": "^6.0.0",
@@ -20,5 +28,8 @@
     "@types/react-dom": "^19.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
+  },
+  "dependencies": {
+    "lightningcss": "^1.32.0"
   }
 }

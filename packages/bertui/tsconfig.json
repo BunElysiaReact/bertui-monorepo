@@ -1,0 +1,29 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "paths": {
+      "@bertui/core":     ["../core/src/index.ts"],
+      "@bertui/compiler": ["../compiler/src/index.ts"],
+      "@bertui/router":   ["../router/src/index.ts"],
+      "@bertui/ssg":      ["../ssg/src/index.ts"],
+      "@bertui/css":      ["../css/src/index.ts"],
+      "@bertui/images":   ["../images/src/index.ts"],
+      "@bertui/dev":      ["../dev/src/index.ts"],
+      "@bertui/cli":      ["../cli/src/index.ts"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["dist", "node_modules"],
+  "references": [
+    { "path": "../core" },
+    { "path": "../compiler" },
+    { "path": "../router" },
+    { "path": "../ssg" },
+    { "path": "../css" },
+    { "path": "../images" },
+    { "path": "../dev" },
+    { "path": "../cli" }
+  ]
+}

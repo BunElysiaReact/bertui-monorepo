@@ -1,7 +1,8 @@
 // packages/cli/src/analyze.ts
 // Bundle size analyzer — generates dist/bundle-report.html
 
-import { join, relative, existsSync, readdirSync, statSync } from 'path'
+import { join, relative } from 'path'
+import { existsSync, readdirSync, statSync } from 'fs'
 import { formatBytes } from '@bertui/core'
 
 interface FileEntry {

@@ -11,11 +11,20 @@
     }
   },
   "scripts": {
-    "build": "bun build ./src/index.ts --outdir ./dist --target bun --format esm",
+    "build": "bun build ./src/index.ts --outdir ./dist --target bun --format esm --external lightningcss --external @bertui/css",
     "typecheck": "tsc --noEmit"
   },
+ 
   "dependencies": {
-    "@bertui/core": "workspace:*"
+    "lightningcss": "latest",
+    "@bertui/core": "workspace:*",
+    "@bertui/compiler": "workspace:*",
+    "@bertui/dev": "workspace:*",
+    "@bertui/css": "workspace:*",
+    "@bertui/images": "workspace:*",
+    "@bertui/ssg": "workspace:*"
+    
+
   },
   "devDependencies": {
     "typescript": "^6.0.0"

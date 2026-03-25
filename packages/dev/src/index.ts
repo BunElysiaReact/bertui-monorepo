@@ -1,7 +1,8 @@
 // packages/dev/src/index.ts
 // @bertui/dev — HMR server, file watcher, import map
 
-import { join, extname, existsSync, readdirSync, statSync } from 'path'
+import { join, extname } from 'path'
+import { existsSync, readdirSync, statSync } from 'fs'
 import type { HMRMessage } from '@bertui/core'
 
 export type { HMRMessage }

@@ -1,7 +1,8 @@
 // packages/cli/src/scaffold.ts
 // bertui create <type> <name>
 
-import { join, existsSync, mkdirSync } from 'path'
+import { join } from 'path'
+import { existsSync, readdirSync, statSync, mkdirSync } from 'fs'
 import { toPascalCase } from '@bertui/core'
 
 export interface ScaffoldOptions {

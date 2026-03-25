@@ -11,6 +11,10 @@ export interface BertuiConfig {
   meta: MetaConfig
   appShell: AppShellConfig
   robots: RobotsConfig
+  elysia?:     boolean
+  forms?:      boolean
+  animations?: boolean
+  icons?:      boolean
 }
 
 export interface MetaConfig {
