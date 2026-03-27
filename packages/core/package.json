@@ -1,6 +1,6 @@
 {
   "name": "@bertui/core",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Core types, config, and utilities for BertUI",
   "type": "module",
   "main": "./dist/index.js",

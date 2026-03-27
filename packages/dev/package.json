@@ -1,10 +1,10 @@
 {
   "name": "@bertui/dev",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "files": ["dist", "README.md"],
+  "files": ["dist", "README.md", "./src/error-overlay.js"],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
