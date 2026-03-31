@@ -12,7 +12,7 @@
     }
   },
   "scripts": {
-    "build": "bun build ./src/index.ts --outdir ./dist --target bun --format esm --external lightningcss --external @bertui/css",
+    "build": "bun build ./src/index.ts --outdir ./dist --target bun --format esm --external lightningcss --external @bertui/css --external @bertui/compiler --external @bertui/dev --external @bertui/core --external @bertui/images --external @bertui/ssg",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

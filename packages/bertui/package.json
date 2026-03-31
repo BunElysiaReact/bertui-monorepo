@@ -26,16 +26,21 @@
     "build": "bun build ./src/index.ts --outdir ./dist --target bun --format esm && tsc --emitDeclarationOnly",
     "typecheck": "tsc --noEmit"
   },
+
   "dependencies": {
-    "@bertui/core": "^1.0.0",
-    "@bertui/compiler": "^1.0.0",
-    "@bertui/router": "^1.0.0",
-    "@bertui/ssg": "^1.0.0",
-    "@bertui/css": "^1.0.0",
-    "@bertui/cli": "^1.0.0",
-    "@bertui/dev": "^1.0.0",
-    "@bertui/images": "^1.0.0"
+    "bertui": "link:bertui",
+    "@bertui/cli": "link:@bertui/cli",
+    "@bertui/compiler": "link:@bertui/compiler",
+    "@bertui/core": "link:@bertui/core",
+    "@bertui/css": "link:@bertui/css",
+    "@bertui/dev": "link:@bertui/dev",
+    "@bertui/images": "link:@bertui/images",
+    "@bertui/router": "link:@bertui/router",
+    "@bertui/ssg": "link:@bertui/ssg",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
   },
+
   "peerDependencies": {
     "react": ">=19.0.0",
     "react-dom": ">=19.0.0"

@@ -73,11 +73,13 @@ export interface WatcherOptions {
   root: string
   compiledDir: string
   onRecompile?: () => Promise<void>
+  /** Called after a .css file change so the caller can rebuild CSS */
+  onCSSChange?: () => Promise<void>
   notifyClients: (msg: HMRMessage) => void
 }
 
 export function setupFileWatcher(opts: WatcherOptions): () => void {
-  const { root, compiledDir: _compiledDir, onRecompile, notifyClients } = opts
+  const { root, compiledDir: _compiledDir, onRecompile, onCSSChange, notifyClients } = opts
   const srcDir    = join(root, 'src')
   const pkgJson   = join(root, 'package.json')
 
@@ -95,7 +97,8 @@ export function setupFileWatcher(opts: WatcherOptions): () => void {
 
   const srcWatcher = watch(srcDir, { recursive: true }, async (_evt: string, filename: string | null) => {
     if (!filename) return
-    if (!WATCHED_EXTS.has(extname(filename))) return
+    const ext = extname(filename)
+    if (!WATCHED_EXTS.has(ext)) return
 
     if (debounce) clearTimeout(debounce)
     debounce = setTimeout(async () => {
@@ -104,9 +107,18 @@ export function setupFileWatcher(opts: WatcherOptions): () => void {
       notifyClients({ type: 'recompiling' })
 
       try {
-        const { compileProject } = await import('@bertui/compiler')
-        await compileProject(root, { env: 'development' })
-        if (onRecompile) await onRecompile()
+        // Always recompile JS/TS
+        if (ext !== '.css') {
+          const { compileProject } = await import('@bertui/compiler')
+          await compileProject(root, { env: 'development' })
+          if (onRecompile) await onRecompile()
+        }
+
+        // Rebuild CSS on .css changes
+        if (ext === '.css' && onCSSChange) {
+          await onCSSChange()
+        }
+
         notifyClients({ type: 'compiled' })
         setTimeout(() => notifyClients({ type: 'reload' }), 100)
       } catch (err) {

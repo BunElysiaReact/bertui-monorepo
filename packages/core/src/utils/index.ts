@@ -71,7 +71,8 @@ export function buildAliasMap(
 ): AliasMap {
   const map: AliasMap = new Map()
   for (const [alias, relPath] of Object.entries(importhow)) {
-    const safeName = alias.replace(/^@/, '')
+    // Never allow empty safeName — '@' alone would map to compiledDir root and cause duplicate compilation
+    const safeName = alias.replace(/^@/, '') || '_root'
     const abs = compiledDir ? join(compiledDir, safeName) : join(projectRoot, relPath)
     map.set(alias, abs)
   }

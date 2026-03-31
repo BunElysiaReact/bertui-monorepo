@@ -32,7 +32,7 @@ export async function transform(
         jsx: 'react',
         jsxFactory: 'React.createElement',
         jsxFragmentFactory: 'React.Fragment',
-        module: 'ESNext',
+        
       },
     },
   })
@@ -80,20 +80,28 @@ export function fixRelativeImports(code: string): string {
   })
 }
 
-// Runs AFTER transform — Bun.Transpiler rewrites imports so we patch the output.
-// Handles both 'bertui/router' and 'bertui/router.js' variants.
-// rootCompiledDir is always the ROOT .bertui/compiled, never a subdir.
-export function fixRouterImports(
+// Rewrites bertui/router in SOURCE before Bun transpiles.
+// Bun resolves package specifiers during transpilation so post-transform patching is too late.
+// outPath = the final compiled output path for this file (used to compute correct relative depth)
+export function rewriteRouterInSource(
   code: string,
   outPath: string,
   rootCompiledDir: string
 ): string {
-  const routerPath   = join(rootCompiledDir, 'router.js')
-  const rel          = relative(dirname(outPath), routerPath).replace(/\\/g, '/')
-  const routerImport = rel.startsWith('.') ? rel : './' + rel
+  if (!code.includes('bertui/router')) return code
+
+  // routerPath is always at the ROOT of compiledDir, never inside pages/
+  const routerAbsPath = join(rootCompiledDir, 'router.js')
+  const outDir        = dirname(outPath)
+
+  // relative() from the file's compiled directory to router.js
+  // e.g. compiled/pages/about.js -> compiled/router.js = ../router.js
+  let rel = relative(outDir, routerAbsPath).replace(/\\/g, '/')
+  if (!rel.startsWith('.')) rel = './' + rel
+
   return code
-    .replace(/from\s+['"]bertui\/router\.js['"]/g, `from '${routerImport}'`)
-    .replace(/from\s+['"]bertui\/router['"]/g,     `from '${routerImport}'`)
+    .replace(/from\s+['"]bertui\/router\.js['"]/g, `from '${rel}'`)
+    .replace(/from\s+['"]bertui\/router['"]/g,     `from '${rel}'`)
 }
 
 export interface CompileFileOptions {
@@ -111,10 +119,17 @@ export async function compileFile(opts: CompileFileOptions): Promise<void> {
   const loader = ext === '.tsx' ? 'tsx' : ext === '.ts' ? 'ts' : 'jsx' as const
 
   let code = await Bun.file(srcPath).text()
+
   code = stripCSSImports(code)
   code = stripDotenvImports(code)
   code = replaceEnvInCode(code, envVars)
-  // DO NOT fix router imports before transform — transpiler undoes it
+
+  // Fix router BEFORE Bun transpiles — same pattern as bertui v1 client/compiler.js
+  const routerPath   = join(rootCompiledDir, 'router.js')
+  const routerRel    = relative(dirname(outPath), routerPath).replace(/\\/g, '/')
+  const routerImport = routerRel.startsWith('.') ? routerRel : './' + routerRel
+  code = code.replace(/from\s+['"]bertui\/router['"]/g, `from '${routerImport}'`)
+  code = code.replace(/from\s+['"]bertui\/router\.js['"]/g, `from '${routerImport}'`)
 
   let compiled: string
   if (ext === '.js') {
@@ -124,10 +139,16 @@ export async function compileFile(opts: CompileFileOptions): Promise<void> {
     compiled = await transform(code, { loader, env, addReactImport: true })
   }
 
-  // Post-transpile — order matters
-  compiled = fixRouterImports(compiled, outPath, rootCompiledDir) // 1. router path
-  compiled = fixRelativeImports(compiled)                         // 2. append .js
-  compiled = rewriteAliasImports(compiled, outPath, aliasMap)    // 3. alias rewrites
+  // Run it again after transform to catch anything Bun re-resolved
+  compiled = compiled.replace(/from\s+['"]bertui\/router['"]/g, `from '${routerImport}'`)
+  compiled = compiled.replace(/from\s+['"]bertui\/router\.js['"]/g, `from '${routerImport}'`)
+  compiled = compiled.replace(
+    /from\s+['"][^'"]*node_modules[/\\]bertui[/\\][^'"]*router[^'"]*['"]/g,
+    `from '${routerImport}'`
+  )
+
+  compiled = fixRelativeImports(compiled)
+  compiled = rewriteAliasImports(compiled, outPath, aliasMap)
 
   mkdirSync(dirname(outPath), { recursive: true })
   await Bun.write(outPath, compiled)
@@ -145,7 +166,12 @@ export interface CompileDirectoryOptions {
 }
 
 export async function compileDirectory(opts: CompileDirectoryOptions): Promise<{ files: number }> {
-  const { srcDir, outDir, root, rootCompiledDir, envVars = {}, aliasMap = new Map(), env = 'development', skip = ['api', 'templates'] } = opts
+  const {
+    srcDir, outDir, root, rootCompiledDir,
+    envVars = {}, aliasMap = new Map(),
+    env = 'development',
+    skip = ['api', 'templates'],
+  } = opts
   let files = 0
 
   for (const entry of readdirSync(srcDir)) {
@@ -196,7 +222,17 @@ export async function compileProject(root: string, opts: Partial<CompileOptions>
   const pagesDir  = join(srcDir, 'pages')
   const start     = Date.now()
 
-  const aliasSkip = Object.keys(importhow).map(a => a.replace(/^@/, ''))
+  // Only skip directories whose alias source lives COMPLETELY outside src/.
+  // Aliases like '@pages' -> './src/pages' are INSIDE src/ and get compiled
+  // as part of the normal src/ tree — do NOT skip them or their subfolders.
+  const aliasSkip: string[] = []
+  for (const [alias, relPath] of Object.entries(importhow)) {
+    const absSrcDir = join(root, relPath)
+    if (!absSrcDir.startsWith(srcDir + '/') && !absSrcDir.startsWith(srcDir + '\\') && absSrcDir !== srcDir) {
+      const safeName = alias.replace(/^@/, '')
+      if (safeName) aliasSkip.push(safeName)
+    }
+  }
 
   const stats = await compileDirectory({
     srcDir, outDir: compiledDir, root,
@@ -205,10 +241,19 @@ export async function compileProject(root: string, opts: Partial<CompileOptions>
     skip: ['api', 'templates', ...aliasSkip],
   })
 
+  // Compile alias dirs that live OUTSIDE src/ only
   for (const [alias, relPath] of Object.entries(importhow)) {
     const absSrcDir = join(root, relPath)
     if (!existsSync(absSrcDir)) continue
-    const safeName    = alias.replace(/^@/, '')
+
+    // Skip if it's src/ itself or a subdir of src/ — already compiled above
+    if (
+      absSrcDir === srcDir ||
+      absSrcDir.startsWith(srcDir + '/') ||
+      absSrcDir.startsWith(srcDir + '\\')
+    ) continue
+
+    const safeName    = alias.replace(/^@/, '') || '_root'
     const aliasOutDir = join(compiledDir, safeName)
     mkdirSync(aliasOutDir, { recursive: true })
     const s = await compileDirectory({

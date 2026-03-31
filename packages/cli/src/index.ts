@@ -39,11 +39,13 @@ async function runDev(options: { port: number; root: string }): Promise<void> {
   const { root, port } = options
   const { compileProject } = await import('@bertui/compiler')
   const { buildDevImportMap, setupFileWatcher } = await import('@bertui/dev')
+  const { buildAllCSS } = await import('@bertui/css')
 
   const config = await loadConfig(root)
   await validateOptionalFeatures(config)
 
   const compiledDir = join(root, '.bertui', 'compiled')
+  const bertuiDir   = join(root, '.bertui')
   const clients     = new Set<{ send: (d: string) => void }>()
 
   // Find error-overlay.js — check several candidate locations
@@ -52,23 +54,38 @@ async function runDev(options: { port: number; root: string }): Promise<void> {
     join(root, 'node_modules', '@bertui', 'dev', 'dist', 'error-overlay.js'),
     // symlinked monorepo: node_modules/@bertui/dev is a symlink to packages/dev
     join(root, 'node_modules', '@bertui', 'dev', '..', '..', 'packages', 'dev', 'src', 'error-overlay.js'),
+    // running directly from monorepo source (bun run dev inside packages/cli)
+    join(import.meta.dir, '..', '..', 'dev', 'src', 'error-overlay.js'),
+    // built monorepo: packages/cli/dist -> packages/dev/src
+    join(import.meta.dir, '..', '..', '..', 'dev', 'src', 'error-overlay.js'),
   ]
   const overlayFile = overlayPaths.find(p => existsSync(p)) ?? null
 
-  const cssDir = join(root, '.bertui', 'styles')
+  const cssDir = join(bertuiDir, 'styles')
 
   function notifyClients(msg: object): void {
     for (const c of clients) { try { c.send(JSON.stringify(msg)) } catch { clients.delete(c) } }
   }
 
   printHeader('DEV')
-  console.log('  [ 1/4 ] Compiling...')
+  console.log('  [ 1/5 ] Compiling...')
   await compileProject(root, { env: 'development' })
-  console.log('  [ 2/4 ] Building import map...')
+
+  console.log('  [ 2/5 ] Building CSS...')
+  await buildAllCSS(root, bertuiDir)
+
+  console.log('  [ 3/5 ] Building import map...')
   const importMap = await buildDevImportMap(root)
-  console.log('  [ 3/4 ] Setting up file watcher...')
-  const stopWatcher = setupFileWatcher({ root, compiledDir, notifyClients: msg => notifyClients(msg) })
-  console.log('  [ 4/4 ] Starting server...')
+
+  console.log('  [ 4/5 ] Setting up file watcher...')
+  const stopWatcher = setupFileWatcher({
+    root,
+    compiledDir,
+    notifyClients: msg => notifyClients(msg),
+    onCSSChange: async () => { await buildAllCSS(root, bertuiDir) },
+  })
+
+  console.log('  [ 5/5 ] Starting server...')
 
   const server = Bun.serve({
     port,
